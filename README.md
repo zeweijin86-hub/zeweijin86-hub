@@ -1,18 +1,29 @@
-### Hi, I'm Zewei Jin
+### Zewei Jin · 金泽玮
 
-I build tools that make complex systems legible — a Git history you can play back, and a frozen video backbone you can route per clip.
+Self-supervised video understanding — frozen backbones, attentive probes, and the routing between them.
 
-<p align="center">
-  <img src="https://raw.githubusercontent.com/zeweijin86-hub/Repo-Time-Machine/main/public/media/repo-time-machine-demo.gif" alt="Repo Time Machine: overview, timeline, file lifecycle, and commit replay" width="760" />
-</p>
+---
 
-**Selected work**
+## vjepa2-router
 
-| Project | What it does | Links |
-|---|---|---|
-| **Repo Time Machine** | Turns a repository's commit history into a portable `report.json` and a playable archive — overview, timeline, file lifecycle, commit replay. Local-first: no account, nothing uploaded. | [repo](https://github.com/zeweijin86-hub/Repo-Time-Machine) · [live demo](https://repotime-ffym3eeu.manus.space) |
-| **vjepa2-router** | Per-video classifier routing on Meta's V-JEPA 2 — FP32-safe focal loss, non-target diversity regularization, and a probability-level stacking router trained with exact mixture NLL. | [repo](https://github.com/zeweijin86-hub/vjepa2-router) |
+**Per-video classifier routing for Meta's V-JEPA 2**
 
-**Stack** — TypeScript · React · Vite · Python · PyTorch · distributed training (DDP) · Git internals
+[![tests](https://github.com/zeweijin86-hub/vjepa2-router/actions/workflows/tests.yml/badge.svg)](https://github.com/zeweijin86-hub/vjepa2-router/actions/workflows/tests.yml)
+[![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/zeweijin86-hub/vjepa2-router/blob/main/LICENSE)
+[![upstream](https://img.shields.io/badge/upstream-vjepa2%40204698b4-lightgrey)](https://github.com/facebookresearch/vjepa2)
 
-**Currently** — building local-first developer tools and video-understanding experiments.
+Frozen-backbone probing on V-JEPA 2 trains `H` independent attentive probes, then keeps only the single best-scoring head at validation time — throwing away whatever the other heads learned. This overlay replaces that selection with a router: a small network that reads every probe's class probabilities for one clip and decides how much to trust each head, trained on exact mixture negative log-likelihood.
+
+|  |  |
+|---|---|
+| **Loss** | FP32-safe focal loss, optional dynamic difficulty weighting |
+| **Regularization** | non-target inter-probe diversity against detached peers, a no-op on the binary simplex |
+| **Router** | LayerNorm MLP over `[H, C]` probabilities, trained with mixture NLL |
+| **Engineering** | DDP gather + dedupe, stratified same-split comparison, joint-atomic checkpoints, `--val_only` / `--infer_only` |
+| **Verification** | 13 unit tests on Python 3.10–3.12 with CPU-only PyTorch |
+
+**[Repository](https://github.com/zeweijin86-hub/vjepa2-router)** · [v0.1.0](https://github.com/zeweijin86-hub/vjepa2-router/releases/tag/v0.1.0) · [patch pinned to `204698b4`](https://github.com/zeweijin86-hub/vjepa2-router/blob/main/patches/eval_modifications.patch)
+
+---
+
+<sub>**Side project** — [Repo Time Machine](https://github.com/zeweijin86-hub/Repo-Time-Machine): a local-first Git history visualizer (React + TypeScript, static, nothing uploaded).</sub>
